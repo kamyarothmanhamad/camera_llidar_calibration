@@ -1,0 +1,15 @@
+python examples/calibration_example.py \
+    --camera_config calibration_output/camera_intrinsics.yaml \
+    --image data/sync_data_/sync_data/images/sync_000000.jpg \
+    --pointcloud data/sync_data_/sync_data/pcds/sync_000000.pcd \
+    --output_dir calibration_output \
+    --distance_filter 0,3,-13,3,-15,15 \
+    --visualize
+
+python examples/calibration_example.py \
+    --camera_config calibration_output/fixed_camera_calibration.yaml \
+    --image data/sync_data_/sync_data_calib_big/images/sync_000000.jpg \
+    --pointcloud data/sync_data_/sync_data_calib_big/pcds/sync_000000.pcd \
+    --output_dir calibration_output \
+    --distance_filter 0,3,-13,3,-15,15 \
+    --visualize
