@@ -4,12 +4,15 @@ This package provides a standalone implementation of LiDAR-camera calibration wi
 
 ## Features
 
-- Camera calibration (intrinsics) functionality
-- Point selection interface for both camera images and LiDAR point clouds
+- Camera calibration (intrinsics) functionality with YAML and JSON support
+- Interactive point selection interfaces for both camera images and LiDAR point clouds
 - PnP solver with RANSAC and LM refinement for extrinsic calibration
-- Visualization of LiDAR points projected onto camera images
-- Timestamp-based synchronization for live sensor feeds
+- Multi-format visualization tools for calibration validation:
+  - Correspondence visualization
+  - Reprojection error analysis
+  - Point cloud projection onto images
 - Support for various file formats including .pcd, .npy, .png, and .jpg
+- Distance-based point cloud filtering
 
 ## Installation
 
@@ -46,6 +49,7 @@ python examples/calibration_example.py --camera_config path/to/camera/calibratio
                                       --image path/to/image.jpg \
                                       --pointcloud path/to/pointcloud.pcd \
                                       --output_dir calibration_output \
+                                      --distance_filter "x_min,x_max,y_min,y_max,z_min,z_max" \
                                       --visualize
 ```
 
@@ -63,10 +67,12 @@ python examples/live_projection_example.py --camera_config path/to/camera/calibr
 
 - **lidar_camera_calibrator/**: Core modules
   - **camera_model.py**: Camera model with intrinsics and projection functionality
-  - **data_loader.py**: Data loading from files or live sensors
-  - **point_selector.py**: GUI for selecting corresponding points
-  - **calibrator.py**: Extrinsic calibration using PnP and refinement
-  - **visualizer.py**: Visualization tools
+  - **data_loader.py**: Data loading from files (images, point clouds)
+  - **point_selector.py**: Interactive GUIs for selecting corresponding points
+    - **ImagePointSelector**: For selecting points in camera images
+    - **LidarPointSelector**: For selecting points in LiDAR point clouds
+  - **calibrator.py**: Extrinsic calibration using PnP with RANSAC and refinement
+  - **visualizer.py**: Visualization tools for correspondences and projections
   - **transformations.py**: Transformation handling utilities
 
 - **examples/**: Example scripts showing how to use the package
@@ -78,7 +84,10 @@ python examples/live_projection_example.py --camera_config path/to/camera/calibr
 1. **Select corresponding points** in both the camera image and LiDAR point cloud
 2. **Perform extrinsic calibration** using PnP RANSAC algorithm
 3. **Refine the calibration** with LM optimization
-4. **Visualize results** and check reprojection error
+4. **Visualize results** through:
+   - Point correspondences visualization
+   - Reprojection error analysis 
+   - Point cloud projection onto image
 5. **Save the calibration** for later use in applications
 
 ## Dependencies
@@ -88,13 +97,12 @@ python examples/live_projection_example.py --camera_config path/to/camera/calibr
 - matplotlib
 - scipy
 - pyyaml
-- open3d (optional, for PCD file support)
+- open3d (for PCD file support)
 
 ## License
 
-MIT License - See LICENSE file for details
+MIT License
 
 ## Acknowledgements
 
 - Original ROS implementation by Heethesh Vhavle
-- Standalone version adapted by [Your Name]
