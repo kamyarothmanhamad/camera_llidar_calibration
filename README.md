@@ -1,4 +1,4 @@
-# LiDAR-Camera Calibration (Standalone)
+# Camera-LiDAR Calibration
 
 This package provides a standalone implementation of LiDAR-camera calibration without ROS dependencies. It is based on the ROS package by Heethesh Vhavle.
 
@@ -12,7 +12,7 @@ This package provides a standalone implementation of LiDAR-camera calibration wi
   - Reprojection error analysis
   - Point cloud projection onto images
 - Support for various file formats including .pcd, .npy, .png, and .jpg
-- Distance-based point cloud filtering
+- Distance-based point cloud filtering for better calibration accuracy
 
 ## Installation
 
@@ -20,8 +20,8 @@ This package provides a standalone implementation of LiDAR-camera calibration wi
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/lidar_camera_calibration_standalone.git
-cd lidar_camera_calibration_standalone
+git clone https://github.com/kamyarothmanhamad/camera_llidar_calibration.git
+cd camera_llidar_calibration
 
 # Install dependencies
 pip install -r requirements.txt
@@ -33,34 +33,76 @@ pip install open3d
 pip install -e .
 ```
 
-### Using pip
-
-```bash
-pip install lidar-camera-calibration
-```
-
 ## Usage
 
-### Calibration Example
+### Data Structure
+
+The calibration process expects your data to be organized in a specific structure:
+
+```
+data/
+└── sync_data_/
+    ├── sync_data/
+    │   ├── images/
+    │   │   └── sync_000000.jpg
+    │   └── pcds/
+    │       └── sync_000000.pcd
+    ├── sync_data_calib_big/
+    │   ├── images/
+    │   │   └── sync_000000.jpg
+    │   └── pcds/
+    │       └── sync_000000.pcd
+    └── sync_data_calib_small/
+        ├── images/
+        │   └── sync_000000.jpg
+        └── pcds/
+            └── sync_000000.pcd
+```
+
+### Calibration Examples
+
+Here are some real usage examples from the repository:
 
 ```bash
-# Run the calibration example with your own data
-python examples/calibration_example.py --camera_config path/to/camera/calibration.yaml \
-                                      --image path/to/image.jpg \
-                                      --pointcloud path/to/pointcloud.pcd \
-                                      --output_dir calibration_output \
-                                      --distance_filter "x_min,x_max,y_min,y_max,z_min,z_max" \
-                                      --visualize
+# Basic calibration with visualization and distance filtering
+python examples/calibration_example.py \
+    --camera_config calibration_output/camera_intrinsics.yaml \
+    --image data/sync_data_/sync_data/images/sync_000000.jpg \
+    --pointcloud data/sync_data_/sync_data/pcds/sync_000000.pcd \
+    --output_dir calibration_output \
+    --distance_filter 0,3,-13,3,-15,15 \
+    --visualize
+
+# Using fixed camera calibration with different dataset
+python examples/calibration_example.py \
+    --camera_config calibration_output/fixed_camera_calibration.yaml \
+    --image data/sync_data_/sync_data_calib_big/images/sync_000000.jpg \
+    --pointcloud data/sync_data_/sync_data_calib_big/pcds/sync_000000.pcd \
+    --output_dir calibration_output \
+    --distance_filter 0,3,-13,3,-15,15 \
+    --visualize
+
+# Using smaller calibration target
+python examples/calibration_example.py \
+    --camera_config calibration_output/fixed_camera_calibration.yaml \
+    --image data/sync_data_/sync_data_calib_small/images/sync_000000.jpg \
+    --pointcloud data/sync_data_/sync_data_calib_small/pcds/sync_000000.pcd \
+    --output_dir calibration_output \
+    --distance_filter 0,3,-13,3,-15,15 \
+    --visualize
 ```
+
+The distance filter parameter uses the format: `x_min,x_max,y_min,y_max,z_min,z_max`
 
 ### Live Visualization Example
 
 ```bash
 # Run the live visualization example
-python examples/live_projection_example.py --camera_config path/to/camera/calibration.yaml \
-                                         --calibration path/to/extrinsics.npz \
-                                         --camera_id 0 \
-                                         --sample_pointcloud path/to/pointcloud.pcd
+python examples/live_projection_example.py \
+    --camera_config calibration_output/fixed_camera_calibration.yaml \
+    --calibration calibration_output/extrinsics.npz \
+    --camera_id 0 \
+    --sample_pointcloud data/sync_data_/sync_data/pcds/sync_000000.pcd
 ```
 
 ## Package Structure
@@ -89,6 +131,15 @@ python examples/live_projection_example.py --camera_config path/to/camera/calibr
    - Reprojection error analysis 
    - Point cloud projection onto image
 5. **Save the calibration** for later use in applications
+
+## Calibration Output Files
+
+The calibration process generates several important files:
+- **camera_intrinsics.yaml**: Camera calibration parameters
+- **extrinsics.npz**: Rotation and translation matrices
+- **point_correspondences.png**: Visual confirmation of point correspondences
+- **reprojection_error.png**: Visual analysis of calibration accuracy
+- **projected_pointcloud.png**: LiDAR points projected onto the camera image
 
 ## Dependencies
 
